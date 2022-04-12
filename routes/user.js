@@ -1,39 +1,48 @@
-const express = require("express");
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 
 // Joi valedation
-const UserValidation = require("../schemas")
+const UserValidation = require('../schemas');
 
 //require Controllers
-const UserControllers = require("../controllers/user")
+const UserControllers = require('../controllers/user');
 
 //require Utils
-const catchAsync = require("../utils/catchAsync")
+const catchAsync = require('../utils/catchAsync');
 
 //require middlewares
-const { isLoggedIn, toLowercase } = require("../middleware")
+const { isLoggedIn, toLowercase } = require('../middleware');
 
 //user routes
-router.post("/sign-up", UserValidation, catchAsync(UserControllers.registerUser));
+router.get('/', isLoggedIn, catchAsync(UserControllers.renderUser));
 
-router.post("/sign-in", toLowercase, UserControllers.login, catchAsync(UserControllers.redirectToUser));
+router.patch('/', toLowercase, catchAsync(UserControllers.addUser));
 
-router.get("/sign-out", UserControllers.logoutUser);
+router.post(
+   '/sign-up',
+   UserValidation,
+   catchAsync(UserControllers.registerUser)
+);
 
-router.get("/", isLoggedIn, catchAsync(UserControllers.renderUser));
+router.post(
+   '/sign-in',
+   toLowercase,
+   UserControllers.login,
+   catchAsync(UserControllers.redirectToUser)
+);
 
-router.patch("/", toLowercase, catchAsync(UserControllers.addUser))
+router.get('/sign-out', UserControllers.logoutUser);
 
-router.route("/:id")
-    .get(isLoggedIn, catchAsync(UserControllers.renderConversation))
-    .post(isLoggedIn, catchAsync(UserControllers.sendMessage));
+router
+   .route('/:id')
+   .get(isLoggedIn, catchAsync(UserControllers.renderConversation))
+   .post(isLoggedIn, catchAsync(UserControllers.sendMessage));
 
-module.exports = router
+module.exports = router;
 
-
-// to store the url that the user want to 
+// to store the url that the user want to
 // access befor we redirect him to the login page
-// we save the url in the session 
+// we save the url in the session
 // storedURL is the name we chose to store the url under
 // we add this to the redirecting route
 // req.sission.storedURL = req.originalUrl
